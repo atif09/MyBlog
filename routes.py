@@ -83,3 +83,17 @@ def update_post(post_id):
   post.body = data.get('body', post.body)
   db.session.commit()
   return jsonify(message='Post updated'), 200
+
+
+@app.route('/v1/posts/<int:post_id>', methods=['DELETE'])
+@jwt_required()
+def delete_post(post_id):
+  user_id = get_jwt_identity()
+  post = Post.query.get(post_id)
+  if not post:
+    raise NotFound('Post not found')
+  if post.author_id != user_id:
+    return jsonify(message='Unauthorized'), 403
+  db.session.delete(post)
+  db.session.commit()
+  return jsonify(message='Post deleted'), 200
