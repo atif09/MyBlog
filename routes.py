@@ -1,6 +1,6 @@
 from app import app,db
 from flask import jsonify, request
-from models import User, Post
+from models import User, Post, Comments
 from werkzeug.exceptions import BadRequest, NotFound
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -97,3 +97,21 @@ def delete_post(post_id):
   db.session.delete(post)
   db.session.commit()
   return jsonify(message='Post deleted'), 200
+
+
+
+@app.route('/v1/posts/<int:post_id>/comments', methods=['POST'])
+@jwt_required()
+def add_comment(post_id):
+  user_id = get_jwt_identity()
+  post = Post.query.get(post_id)
+  if not post:
+    raise NotFound('Post not found')
+  data = request.get_json()
+  body = data.get('body')
+  if not body:
+    raise BadRequest('Comment body is required')
+  comment = Comments(body=body, author_id=user_id, post_id=post_id)
+  db.session.add(comment)
+  db.session.commit()
+  return jsonify(message='Comment added'), 201
