@@ -30,5 +30,16 @@ class Post(db.Model):
   timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
   author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'title': self.title,
+      'body': self.body,
+      'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+      'author_id': self.author_id
+    }
+
+  
+
 
 
