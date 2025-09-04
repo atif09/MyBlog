@@ -115,3 +115,12 @@ def add_comment(post_id):
   db.session.add(comment)
   db.session.commit()
   return jsonify(message='Comment added'), 201
+
+
+@app.route('/v1/posts/<int:post_id>/comments', methods=['GET'])
+def get_comments(post_id):
+  post = Post.query.get(post_id)
+  if not post:
+    raise NotFound('Post not found')
+  comments = Comments.query.filter_by(post_id=post_id).all()
+  return jsonify(comments=[c.to_dict() for c in comments]), 200
